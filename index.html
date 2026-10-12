@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kairos — The perfect moment to act</title>
+<meta name="description" content="Kairos is a calm, private planner for your tasks, events and habits. Everything lives on your computer. For Windows and Mac.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="Kairos — The perfect moment to act">
+<meta property="og:description" content="A calm, private planner for your tasks, events and habits. Everything lives on your computer.">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<style>
+@font-face { font-family: "Fraunces"; src: url("assets/fonts/fraunces-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+
+/* Kairos design tokens (docs/DESIGN_SYSTEM.md §3) */
+:root {
+  --midnight: #0b0f1a; --gold: #c9a24a; --ivory: #faf8f4;
+  --bg: #faf8f4; --surface: #ffffff; --surface-2: #f3f0e9; --surface-3: #eae5da;
+  --border: #e4dfd4; --border-strong: #cfc8b8;
+  --text: #12172a; --text-muted: #5b6478; --text-subtle: #656d7e;
+  --accent: #c9a24a; --accent-hover: #b48e38; --accent-text: #8a6516; --on-accent: #12172a;
+  --success: #2f8f62; --warning: #c7772a; --info: #3b6fd8;
+  --work: #3b6fd8; --home: #2f8f62; --personal: #c2547a; --learning: #7b5bd6; --health: #1e9c9a;
+  --shadow: 0 1px 2px rgb(18 23 42 / 0.05), 0 12px 32px -8px rgb(18 23 42 / 0.14);
+  --shadow-lg: 0 2px 4px rgb(18 23 42 / 0.04), 0 32px 64px -16px rgb(18 23 42 / 0.22);
+  --glow: radial-gradient(60% 60% at 70% 20%, rgb(201 162 74 / 0.16), transparent 70%);
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius: 14px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0f1a; --surface: #121828; --surface-2: #1a2134; --surface-3: #232b40;
+    --border: #2a3349; --border-strong: #3a4560;
+    --text: #eef0f5; --text-muted: #a1a9bb; --text-subtle: #7f889c;
+    --accent: #d4af5a; --accent-hover: #e2c27a; --accent-text: #e2c27a; --on-accent: #0b0f1a;
+    --success: #4cc38a; --warning: #f0a35e; --info: #7aa2f7;
+    --work: #7aa2f7; --home: #4cc38a; --personal: #f28bae; --learning: #ae96f5; --health: #4fd1cf;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 32px -8px rgb(0 0 0 / 0.5);
+    --shadow-lg: 0 2px 4px rgb(0 0 0 / 0.3), 0 32px 64px -16px rgb(0 0 0 / 0.65);
+    --glow: radial-gradient(60% 60% at 70% 20%, rgb(212 175 90 / 0.14), transparent 70%);
+  }
+}
+:root[data-theme="dark"], .theme-dark {
+  --bg: #0b0f1a; --surface: #121828; --surface-2: #1a2134; --surface-3: #232b40;
+  --border: #2a3349; --border-strong: #3a4560;
+  --text: #eef0f5; --text-muted: #a1a9bb; --text-subtle: #7f889c;
+  --accent: #d4af5a; --accent-hover: #e2c27a; --accent-text: #e2c27a; --on-accent: #0b0f1a;
+  --success: #4cc38a; --warning: #f0a35e; --info: #7aa2f7;
+  --work: #7aa2f7; --home: #4cc38a; --personal: #f28bae; --learning: #ae96f5; --health: #4fd1cf;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 32px -8px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 2px 4px rgb(0 0 0 / 0.3), 0 32px 64px -16px rgb(0 0 0 / 0.65);
+  --glow: radial-gradient(60% 60% at 70% 20%, rgb(212 175 90 / 0.14), transparent 70%);
+}
+.theme-light {
+  --bg: #faf8f4; --surface: #ffffff; --surface-2: #f3f0e9; --surface-3: #eae5da;
+  --border: #e4dfd4; --border-strong: #cfc8b8;
+  --text: #12172a; --text-muted: #5b6478; --text-subtle: #656d7e;
+  --accent: #c9a24a; --accent-text: #8a6516; --on-accent: #12172a;
+  --success: #2f8f62; --warning: #c7772a; --info: #3b6fd8;
+  --work: #3b6fd8; --home: #2f8f62; --personal: #c2547a; --learning: #7b5bd6; --health: #1e9c9a;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 1rem/1.6 var(--font-sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 3px; border-radius: 6px; }
+.wrap { width: min(1120px, 100% - 32px); margin-inline: auto; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--surface); padding: 8px 12px; border-radius: 8px; z-index: 10; }
+.skip:focus { left: 16px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Header */
+header.top { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: saturate(1.4) blur(12px); border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
+.top .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 500 1.375rem/1 var(--font-display); letter-spacing: -0.01em; }
+.brand img { width: 30px; height: 30px; border-radius: 8px; }
+nav.links { display: flex; gap: 22px; margin-left: auto; font-size: 0.9375rem; color: var(--text-muted); }
+nav.links a { text-decoration: none; }
+nav.links a:hover { color: var(--text); }
+.icon-btn { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); cursor: pointer; }
+.icon-btn:hover { color: var(--text); border-color: var(--border-strong); }
+.icon-btn svg { width: 18px; height: 18px; }
+.moon { display: none; }
+:root[data-theme="dark"] .sun { display: none; } :root[data-theme="dark"] .moon { display: block; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .sun { display: none; } :root:not([data-theme="light"]) .moon { display: block; } }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 22px; border-radius: 12px; font: 600 1rem/1 var(--font-sans); text-decoration: none; border: 1px solid transparent; transition: background-color 0.15s, border-color 0.15s, transform 0.15s; }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.btn-primary { background: var(--accent); color: var(--on-accent); box-shadow: 0 6px 20px -6px rgb(201 162 74 / 0.6); }
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.btn-ghost { background: var(--surface); border-color: var(--border-strong); color: var(--text); }
+.btn-ghost:hover { border-color: var(--accent); transform: translateY(-1px); }
+.btn-sm { min-height: 38px; padding: 0 14px; font-size: 0.9375rem; border-radius: 10px; }
+
+/* Hero */
+.hero { position: relative; padding: 72px 0 40px; }
+.hero::before { content: ""; position: absolute; inset: 0; background: var(--glow); pointer-events: none; }
+.hero .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 56px; align-items: center; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--accent-text); font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.02em; }
+.eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgb(201 162 74 / 0.18); }
+h1 { margin: 20px 0 18px; font: 500 clamp(2.5rem, 5.4vw, 4.25rem)/1.04 var(--font-display); letter-spacing: -0.025em; }
+h1 em { font-style: italic; color: var(--accent-text); }
+.lede { margin: 0 0 32px; max-width: 34rem; font-size: 1.1875rem; color: var(--text-muted); }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.fine { margin: 18px 0 0; font-size: 0.875rem; color: var(--text-subtle); }
+
+/* Mock app window */
+.window { border-radius: 16px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-lg); overflow: hidden; color: var(--text); font-size: 13px; line-height: 1.45; }
+.window .bar { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.window .bar span { width: 10px; height: 10px; border-radius: 50%; background: var(--border-strong); }
+.window .bar b { margin-left: 8px; font-weight: 500; color: var(--text-subtle); font-size: 12px; }
+.app { display: grid; grid-template-columns: 148px 1fr; min-height: 420px; }
+.side { background: var(--surface-2); border-right: 1px solid var(--border); padding: 14px 10px; display: flex; flex-direction: column; gap: 2px; }
+.side .logo { display: flex; align-items: center; gap: 8px; padding: 2px 8px 14px; font: 500 15px/1 var(--font-display); }
+.side .logo svg { width: 18px; height: 18px; }
+.side a { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 8px; color: var(--text-muted); text-decoration: none; font-weight: 500; }
+.side a svg { width: 15px; height: 15px; }
+.side a.on { background: var(--surface-3); color: var(--text); }
+.main { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; background: var(--bg); }
+.greet { font: 500 24px/1.15 var(--font-display); letter-spacing: -0.015em; }
+.sum { color: var(--text-muted); margin-top: 4px; }
+.slip { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--warning) 9%, var(--surface)); border: 1px solid color-mix(in srgb, var(--warning) 30%, var(--border)); }
+.slip svg { width: 16px; height: 16px; color: var(--warning); flex: none; }
+.slip p { margin: 0; flex: 1; }
+.chipbtn { padding: 4px 10px; border-radius: 7px; background: var(--surface); border: 1px solid var(--border-strong); font-weight: 600; font-size: 12px; white-space: nowrap; }
+.label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 6px; }
+.item { position: relative; display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 16px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); margin-bottom: 6px; }
+.item::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 4px; border-radius: 0 4px 4px 0; background: var(--a, var(--border-strong)); }
+.item .ck { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--text-subtle); flex: none; }
+.item .ck.done { background: var(--success); border-color: var(--success); display: grid; place-items: center; }
+.item .ck.done svg { width: 10px; height: 10px; color: var(--surface); }
+.item .t { flex: 1; font-weight: 500; }
+.item .m { color: var(--text-muted); font-variant-numeric: tabular-nums; font-size: 12px; }
+.item.now { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
+.pill { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+.pill.now { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent-text); }
+.pill.now i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent); } }
+.item.isdone .t { color: var(--text-subtle); text-decoration: line-through; }
+.balance { display: flex; height: 8px; border-radius: 99px; overflow: hidden; gap: 2px; }
+.balance span { background: var(--c); }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: 11.5px; color: var(--text-muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+
+/* Floating cards on hero */
+.stage { position: relative; }
+.float { position: absolute; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-lg); font-size: 13px; }
+.toast { right: -28px; bottom: -36px; width: 300px; padding: 14px; }
+.hero .stage { margin-bottom: 36px; }
+.toast .h { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 12px; margin-bottom: 8px; }
+.toast .h img { width: 16px; height: 16px; border-radius: 4px; }
+.toast strong { display: block; font-size: 14px; }
+.toast .when { color: var(--text-muted); font-size: 12px; }
+.toast .acts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 12px; }
+.toast .acts span { text-align: center; padding: 7px 4px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border); font-weight: 600; font-size: 12px; }
+
+/* Sections */
+section { padding: 88px 0; }
+.sec-head { max-width: 40rem; margin-bottom: 48px; }
+.kicker { color: var(--accent-text); font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+h2 { margin: 10px 0 14px; font: 500 clamp(2rem, 3.6vw, 2.75rem)/1.1 var(--font-display); letter-spacing: -0.02em; }
+.sec-head p { margin: 0; color: var(--text-muted); font-size: 1.0625rem; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.card { padding: 26px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); transition: border-color 0.2s, transform 0.2s; }
+.card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+.card .ic { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 11px; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent-text); margin-bottom: 18px; }
+.card .ic svg { width: 21px; height: 21px; }
+.card h3 { margin: 0 0 8px; font-size: 1.0625rem; font-weight: 650; }
+.card p { margin: 0; color: var(--text-muted); font-size: 0.9688rem; }
+.alt { background: var(--surface-2); border-block: 1px solid var(--border); }
+
+/* Split rows */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: center; }
+.split + .split { margin-top: 96px; }
+.split.rev > :first-child { order: 2; }
+.points { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 12px; }
+.points li { display: flex; gap: 12px; color: var(--text-muted); }
+.points svg { width: 20px; height: 20px; flex: none; color: var(--success); margin-top: 2px; }
+.points b { color: var(--text); font-weight: 600; }
+
+.capture { padding: 18px; }
+.capture .in { padding: 14px 16px; border-radius: 11px; background: var(--surface-2); border: 1px solid var(--border-strong); font-size: 15px; }
+.capture .in .caret { display: inline-block; width: 1.5px; height: 18px; background: var(--accent-text); vertical-align: -3px; margin-left: 2px; animation: blink 1.1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); font-size: 12.5px; font-weight: 600; }
+.chip svg { width: 13px; height: 13px; color: var(--accent-text); }
+.chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--home); }
+.capture .hint { margin-top: 14px; display: flex; justify-content: space-between; color: var(--text-subtle); font-size: 12px; }
+kbd { font: 600 0.8em var(--font-sans); padding: 2px 6px; border-radius: 5px; border: 1px solid var(--border-strong); background: var(--surface); }
+
+.week { padding: 16px; }
+.week .days { display: grid; grid-template-columns: 34px repeat(5, 1fr); gap: 6px; font-size: 11.5px; color: var(--text-subtle); text-align: center; margin-bottom: 8px; }
+.week .days b { color: var(--text); font-weight: 600; }
+.week .days b.today { color: var(--accent-text); }
+.week .grid5 { position: relative; display: grid; grid-template-columns: 34px repeat(5, 1fr); grid-template-rows: repeat(6, 34px); gap: 0 6px; }
+.week .hr { font-size: 10.5px; color: var(--text-subtle); text-align: right; padding-right: 4px; border-top: 1px dashed var(--border); }
+.week .cell { border-top: 1px dashed var(--border); }
+.ev { position: relative; z-index: 1; margin: 2px 0; padding: 4px 6px; white-space: nowrap; text-overflow: ellipsis; border-radius: 6px; font-size: 11px; font-weight: 600; background: color-mix(in srgb, var(--a) 14%, var(--surface)); border-left: 3px solid var(--a); overflow: hidden; }
+.ev small { display: block; font-weight: 500; color: var(--text-muted); }
+.nowline { position: absolute; left: 34px; right: 0; top: 112px; height: 2px; background: var(--accent); z-index: 2; }
+.nowline::before { content: ""; position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+/* Themes showcase */
+.themes { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.mini { border-radius: var(--radius); background: var(--bg); border: 1px solid var(--border); padding: 20px; color: var(--text); }
+.mini .label { margin-top: 14px; }
+.mini .greet { font-size: 20px; }
+
+/* Privacy */
+.privacy { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.promise { padding: 24px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); }
+.promise svg { width: 26px; height: 26px; color: var(--accent-text); margin-bottom: 14px; }
+.promise h3 { margin: 0 0 6px; font-size: 1rem; font-weight: 650; }
+.promise p { margin: 0; font-size: 0.9375rem; color: var(--text-muted); }
+
+/* Download */
+.download { position: relative; overflow: hidden; border-radius: 24px; padding: 64px 48px; background: #0b0f1a; color: #eef0f5; text-align: center; }
+.download::before { content: ""; position: absolute; inset: 0; background: radial-gradient(50% 80% at 50% 0%, rgb(212 175 90 / 0.22), transparent 70%); }
+.download > * { position: relative; }
+.download img { width: 72px; height: 72px; margin: 0 auto 24px; border-radius: 18px; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 20px 40px -10px rgb(0 0 0 / 0.6); }
+.download h2 { color: #faf8f4; }
+.download p { max-width: 36rem; margin: 0 auto 32px; color: #a1a9bb; font-size: 1.0625rem; }
+.download .btn-primary { background: #d4af5a; color: #0b0f1a; }
+.download .btn-primary:hover { background: #e2c27a; }
+.download .btn-ghost { background: transparent; color: #eef0f5; border-color: #3a4560; }
+.download .btn-ghost:hover { border-color: #d4af5a; }
+.download .cta { justify-content: center; }
+.download .fine { color: #7f889c; }
+.download .fine a { color: #e2c27a; }
+.sys { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 22px; margin-top: 28px; font-size: 0.875rem; color: #a1a9bb; }
+.sys span { display: inline-flex; align-items: center; gap: 7px; }
+.sys svg { width: 16px; height: 16px; color: #4cc38a; }
+
+footer { padding: 40px 0 56px; color: var(--text-subtle); font-size: 0.875rem; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center; }
+footer nav { display: flex; gap: 20px; }
+footer a { text-decoration: none; } footer a:hover { color: var(--text); }
+
+/* Responsive */
+@media (max-width: 980px) {
+  .hero .wrap, .split { grid-template-columns: 1fr; gap: 48px; }
+  .split.rev > :first-child { order: 0; }
+  .grid { grid-template-columns: 1fr 1fr; }
+  .privacy { grid-template-columns: 1fr 1fr; }
+  .toast { right: 12px; }
+}
+@media (max-width: 640px) {
+  nav.links { display: none; }
+  .top .wrap { justify-content: space-between; }
+  .hero { padding-top: 48px; }
+  .grid, .privacy, .themes { grid-template-columns: 1fr; }
+  section { padding: 64px 0; }
+  .app { grid-template-columns: 1fr; }
+  .side { display: none; }
+  .float.toast { position: relative; right: auto; bottom: auto; width: auto; margin: -24px 12px 0; }
+  .download { padding: 48px 20px; }
+  .cta .btn { flex: 1 1 100%; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- Icon sprite (Lucide, ISC licence) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-mark" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.8 8.2 18.6 5.4" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+    <symbol id="i-win" viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10.5 4.5v7H3zM11.5 4.4 21 3v8.5h-9.5zM3 12.5h7.5v7L3 18.5zM11.5 12.5H21V21l-9.5-1.4z"/></symbol>
+    <symbol id="i-apple" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.4 2-3.5 2.1-3.6-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.1-1.2 2.9-2.4.9-1.4 1.3-2.7 1.3-2.8 0 0-2.4-1-2.4-4ZM14 5.4c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.1-.6 2.8-1.4Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-checkc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-day" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M4.9 4.9l1.4 1.4M2 12h2M20 12h2M19.1 4.9l-1.4 1.4"/><path d="M17 12a5 5 0 0 0-10 0"/><path d="M3 16h18M7 20h10"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1Z"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1.1-2.1-.2-4 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.2.4-2.3 1-3.1a2.5 2.5 0 0 0 2.5 2.6Z"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="i-review" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></symbol>
+    <symbol id="i-rotate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.8 9.8 0 0 0-6.7 2.7L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 15.5A2 2 0 0 0 8.5 14.1L2.4 12.5a.5.5 0 0 1 0-1l6.1-1.6a2 2 0 0 0 1.4-1.4l1.6-6.1a.5.5 0 0 1 1 0l1.6 6.1a2 2 0 0 0 1.4 1.4l6.1 1.6a.5.5 0 0 1 0 1l-6.1 1.6a2 2 0 0 0-1.4 1.4l-1.6 6.1a.5.5 0 0 1-1 0z"/></symbol>
+    <symbol id="i-timer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4M12 14l3-3"/><circle cx="12" cy="14" r="8"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-wifioff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h.01M8.5 16.4a5 5 0 0 1 7 0M2 8.8a15 15 0 0 1 4.2-2.6M22 8.8A15 15 0 0 0 11.3 5M5 12.9a10 10 0 0 1 5.2-2.8M19 12.9a10 10 0 0 0-1.4-1.1M2 2l20 20"/></symbol>
+    <symbol id="i-eyeoff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.7 5.1A10.7 10.7 0 0 1 22 12a13 13 0 0 1-1.7 2.7M6.6 6.6A13.5 13.5 0 0 0 2 12a10.8 10.8 0 0 0 14.4 5.4M14.1 14.1A3 3 0 1 1 9.9 9.9M2 2l20 20"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.2-8.6"/><path d="M21 3v6h-6"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2a10 10 0 0 0 0 20c.9 0 1.7-.8 1.7-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1a1.6 1.6 0 0 1 1.6-1.7h2A5.6 5.6 0 0 0 22 11c0-5-4.5-9-10-9Z"/></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Kairos home"><img src="assets/icon.svg" alt="" width="30" height="30">Kairos</a>
+    <nav class="links" aria-label="Sections">
+      <a href="#features">Features</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#download">Download</a>
+    </nav>
+    <button class="icon-btn" id="theme" type="button" aria-label="Switch between light and dark">
+      <svg class="sun" aria-hidden="true"><use href="#i-sun"/></svg>
+      <svg class="moon" aria-hidden="true"><use href="#i-moon"/></svg>
+    </button>
+    <a class="btn btn-primary btn-sm" href="#download">Download</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow"><i></i>Free beta · Windows &amp; Mac</span>
+        <h1>The perfect moment <em>to act.</em></h1>
+        <p class="lede">Kairos is a calm planner for your tasks, events and habits. It shows what matters now, reminds you at the right time, and keeps everything on your own computer.</p>
+        <div class="cta">
+          <a class="btn btn-primary" href="#download"><svg aria-hidden="true"><use href="#i-win"/></svg>Download for Windows</a>
+          <a class="btn btn-ghost" href="#download"><svg aria-hidden="true"><use href="#i-apple"/></svg>Download for Mac</a>
+        </div>
+        <p class="fine">No account. No subscription. Works offline.</p>
+      </div>
+
+      <div class="stage" aria-label="Preview of the Kairos My Day screen" role="img">
+        <div class="window" aria-hidden="true">
+          <div class="bar"><span></span><span></span><span></span><b>Kairos</b></div>
+          <div class="app">
+            <div class="side">
+              <div class="logo"><svg><use href="#i-mark"/></svg>Kairos</div>
+              <a class="on"><svg><use href="#i-day"/></svg>My Day</a>
+              <a><svg><use href="#i-cal"/></svg>Calendar</a>
+              <a><svg><use href="#i-inbox"/></svg>Inbox</a>
+              <a><svg><use href="#i-flame"/></svg>Habits</a>
+              <a><svg><use href="#i-target"/></svg>Goals</a>
+              <a><svg><use href="#i-review"/></svg>Review</a>
+            </div>
+            <div class="main">
+              <div>
+                <div class="greet">Good morning, Sara</div>
+                <div class="sum">Tuesday 14 October · 4 tasks today, 2 meetings</div>
+              </div>
+              <div class="slip">
+                <svg><use href="#i-rotate"/></svg>
+                <p><b>1 thing slipped by.</b> Want to give it a new moment?</p>
+                <span class="chipbtn">Today</span>
+              </div>
+              <div>
+                <div class="label">Now</div>
+                <div class="item now" style="--a: var(--work)"><span class="ck"></span><span class="t">Design review with Omar</span><span class="pill now"><i></i>Now</span><span class="m">10:00–11:00</span></div>
+              </div>
+              <div>
+                <div class="label">Today</div>
+                <div class="item" style="--a: var(--home)"><span class="ck"></span><span class="t">Call the bank</span><span class="m">15:00</span></div>
+                <div class="item" style="--a: var(--health)"><span class="ck"></span><span class="t">Evening walk</span><span class="m">18:30</span></div>
+                <div class="item isdone" style="--a: var(--personal)"><span class="ck done"><svg><use href="#i-check"/></svg></span><span class="t">Buy Mum's birthday card</span><span class="m">Done</span></div>
+              </div>
+              <div>
+                <div class="label">This week's balance</div>
+                <div class="balance"><span style="--c: var(--work); flex: 5"></span><span style="--c: var(--home); flex: 2"></span><span style="--c: var(--personal); flex: 2"></span><span style="--c: var(--learning); flex: 1.5"></span><span style="--c: var(--health); flex: 1.2"></span></div>
+                <div class="legend"><span><i style="--c: var(--work)"></i>Work</span><span><i style="--c: var(--home)"></i>Home</span><span><i style="--c: var(--personal)"></i>Personal</span><span><i style="--c: var(--learning)"></i>Learning</span><span><i style="--c: var(--health)"></i>Health</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="float toast" aria-hidden="true">
+          <div class="h"><img src="assets/icon.svg" alt="">Kairos · now</div>
+          <strong>Call the bank</strong>
+          <span class="when">Today at 3:00 PM</span>
+          <div class="acts"><span>Done</span><span>Snooze 10 min</span><span>Tomorrow</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="alt">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">Everything in one calm place</span>
+        <h2>Plan less. Do more of what matters.</h2>
+        <p>Tasks, events, reminders and habits live together, so your day makes sense at a glance.</p>
+      </div>
+      <div class="grid">
+        <article class="card"><div class="ic"><svg aria-hidden="true"><use href="#i-day"/></svg></div><h3>My Day</h3><p>Open Kairos and see what's happening now, what's left today and how your week is balanced.</p></article>
+        <article class="card"><div class="ic"><svg aria-hidden="true"><use href="#i-cal"/></svg></div><h3>Calendar &amp; time blocks</h3><p>Day, week, month and agenda views. Drag a task onto the calendar to give it a time.</p></article>
+        <article class="card"><div class="ic"><svg aria-hidden="true"><use href="#i-bell"/></svg></div><h3>Reminders that reach you</h3><p>Real notifications, even when the window is closed. Tick it off or snooze it right from the reminder.</p></article>
+        <article class="card"><div class="ic"><svg aria-hidden="true"><use href="#i-zap"/></svg></div><h3>Quick capture</h3><p>Type "Call bank tomorrow 3pm #home" and Kairos understands the date, time and area. No forms.</p></article>
+        <article class="card"><div class="ic"><svg aria-hidden="true"><use href="#i-flame"/></svg></div><h3>Habits, goals &amp; focus</h3><p>Gentle streaks, goals with milestones, a focus timer, and a weekly review of how time was spent.</p></article>
+        <article class="card"><div class="ic"><svg aria-hidden="true"><use href="#i-sparkle"/></svg></div><h3>Smart extras, if you want them</h3><p>Turn a screenshot into a task or plan your day with AI. Off by default; uses your own free Gemini key.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="split">
+        <div>
+          <span class="kicker">Capture in a second</span>
+          <h2>Say it the way you think it.</h2>
+          <p class="lede" style="margin:0">Press <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>Space</kbd> anywhere, type a sentence, and press Enter. Kairos picks out the day, the time and the life area, and shows you what it understood before saving.</p>
+          <ul class="points">
+            <li><svg aria-hidden="true"><use href="#i-checkc"/></svg><span><b>Works offline.</b> The understanding happens on your computer.</span></li>
+            <li><svg aria-hidden="true"><use href="#i-checkc"/></svg><span><b>Speak instead.</b> On Windows, press <kbd>Win</kbd> <kbd>H</kbd> in any box and talk.</span></li>
+          </ul>
+        </div>
+        <div class="window capture" role="img" aria-label="Quick capture: 'Call bank tomorrow 3pm #home' is understood as tomorrow, 3:00 PM, area Home">
+          <div aria-hidden="true">
+            <div class="in">Call bank tomorrow 3pm #home<span class="caret"></span></div>
+            <div class="chips">
+              <span class="chip"><svg><use href="#i-cal"/></svg>Tomorrow</span>
+              <span class="chip"><svg><use href="#i-timer"/></svg>3:00 PM</span>
+              <span class="chip"><i></i>Home</span>
+            </div>
+            <div class="hint"><span>Enter adds "Call bank" · Esc closes</span><span>More details</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="split rev">
+        <div>
+          <span class="kicker">Kind by design</span>
+          <h2>Missed something? It slipped, you didn't fail.</h2>
+          <p class="lede" style="margin:0">Kairos never shouts in red. Slipped tasks are shown in soft amber with one-click choices: today, tomorrow, pick a date, or let it go. If something keeps moving, Kairos suggests breaking it into smaller steps.</p>
+        </div>
+        <div class="window week" role="img" aria-label="Week calendar with colour-coded events and a gold line marking the current time">
+          <div aria-hidden="true">
+            <div class="days"><span></span><b>Mon 13</b><b class="today">Tue 14</b><b>Wed 15</b><b>Thu 16</b><b>Fri 17</b></div>
+            <div class="grid5">
+              <div class="hr">9</div><div class="cell"><div class="ev" style="--a: var(--work)">Stand-up<small>9:00</small></div></div><div class="cell"><div class="ev" style="--a: var(--work)">Stand-up<small>9:00</small></div></div><div class="cell"><div class="ev" style="--a: var(--work)">Stand-up<small>9:00</small></div></div><div class="cell"></div><div class="cell"><div class="ev" style="--a: var(--learning)">Spanish<small>9:00</small></div></div>
+              <div class="hr">10</div><div class="cell"></div><div class="cell"><div class="ev" style="--a: var(--work)">Design review<small>10:00</small></div></div><div class="cell"></div><div class="cell"><div class="ev" style="--a: var(--work)">Client call<small>10:30</small></div></div><div class="cell"></div>
+              <div class="hr">11</div><div class="cell"><div class="ev" style="--a: var(--personal)">Dentist<small>11:00</small></div></div><div class="cell"></div><div class="cell"><div class="ev" style="--a: var(--health)">Gym<small>11:00</small></div></div><div class="cell"></div><div class="cell"></div>
+              <div class="hr">12</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><div class="ev" style="--a: var(--home)">Lunch with Ali<small>12:30</small></div></div>
+              <div class="hr">13</div><div class="cell"></div><div class="cell"><div class="ev" style="--a: var(--home)">Groceries<small>13:00</small></div></div><div class="cell"></div><div class="cell"><div class="ev" style="--a: var(--learning)">Read 30 min<small>13:00</small></div></div><div class="cell"></div>
+              <div class="hr">14</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+              <span class="nowline"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="split">
+        <div>
+          <span class="kicker">Light or dark</span>
+          <h2>Beautiful in every light.</h2>
+          <p class="lede" style="margin:0">Ivory and gold by day, midnight and gold by night, or let Kairos follow your system. Four text sizes, full keyboard control, and colour is never the only signal.</p>
+        </div>
+        <div class="themes" role="img" aria-label="Kairos shown side by side in the light theme and the dark theme">
+          <div class="mini theme-light" aria-hidden="true">
+            <div class="greet">Good evening</div><div class="sum">2 things left today</div>
+            <div class="label">Today</div>
+            <div class="item" style="--a: var(--home)"><span class="ck"></span><span class="t">Water plants</span></div>
+            <div class="item now" style="--a: var(--learning)"><span class="ck"></span><span class="t">Read</span><span class="pill now"><i></i>Now</span></div>
+          </div>
+          <div class="mini theme-dark" aria-hidden="true">
+            <div class="greet">Good evening</div><div class="sum">2 things left today</div>
+            <div class="label">Today</div>
+            <div class="item" style="--a: var(--home)"><span class="ck"></span><span class="t">Water plants</span></div>
+            <div class="item now" style="--a: var(--learning)"><span class="ck"></span><span class="t">Read</span><span class="pill now"><i></i>Now</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="privacy" class="alt">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">The privacy promise</span>
+        <h2>Your planner lives with you.</h2>
+        <p>Your plans are personal. Kairos keeps them on your computer, not on someone else's server.</p>
+      </div>
+      <div class="privacy">
+        <div class="promise"><svg aria-hidden="true"><use href="#i-lock"/></svg><h3>No account</h3><p>Open it and start. There's nothing to sign up for and no password to forget.</p></div>
+        <div class="promise"><svg aria-hidden="true"><use href="#i-wifioff"/></svg><h3>Works offline</h3><p>Everything works without the internet, except the optional smart extras.</p></div>
+        <div class="promise"><svg aria-hidden="true"><use href="#i-eyeoff"/></svg><h3>No tracking</h3><p>No analytics, no ads, no data selling. This website doesn't track you either.</p></div>
+        <div class="promise"><svg aria-hidden="true"><use href="#i-save"/></svg><h3>Automatic backups</h3><p>Daily backup copies, one-click restore, and export to standard calendar files.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="download">
+    <div class="wrap">
+      <div class="download">
+        <img src="assets/icon.svg" alt="" width="72" height="72">
+        <h2>Find your moment.</h2>
+        <p>Kairos is in free beta. Download it, use it for your real days, and tell us what you think.</p>
+        <div class="cta">
+          <a class="btn btn-primary" href="https://github.com/ibrahimhere1995-hue/kairos-releases/releases"><svg aria-hidden="true"><use href="#i-win"/></svg>Windows 10 &amp; 11</a>
+          <a class="btn btn-ghost" href="https://github.com/ibrahimhere1995-hue/kairos-releases/releases"><svg aria-hidden="true"><use href="#i-apple"/></svg>macOS (Intel &amp; Apple Silicon)</a>
+        </div>
+        <p class="fine" style="margin-top:20px">Pick the <b>.exe</b> for Windows or the <b>.dmg</b> for Mac under <i>Assets</i>. The beta isn't signed yet, so your computer may ask you to confirm. <a href="https://github.com/ibrahimhere1995-hue/kairos-releases#readme">How to install</a></p>
+        <div class="sys">
+          <span><svg aria-hidden="true"><use href="#i-check"/></svg>Free during beta</span>
+          <span><svg aria-hidden="true"><use href="#i-check"/></svg>Small: about 4 MB on Windows</span>
+          <span><svg aria-hidden="true"><use href="#i-check"/></svg>No account needed</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Kairos · The perfect moment to act.</span>
+    <nav aria-label="Footer">
+      <a href="#features">Features</a>
+      <a href="#privacy">Privacy</a>
+      <a href="https://github.com/ibrahimhere1995-hue/kairos-releases#readme">Install guide</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+  // Light/dark toggle; remembered in this browser only.
+  (function () {
+    var root = document.documentElement, btn = document.getElementById("theme");
+    try { var saved = localStorage.getItem("kairos-theme"); if (saved) root.dataset.theme = saved; } catch (e) {}
+    btn.addEventListener("click", function () {
+      var dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+      root.dataset.theme = dark ? "light" : "dark";
+      try { localStorage.setItem("kairos-theme", root.dataset.theme); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>

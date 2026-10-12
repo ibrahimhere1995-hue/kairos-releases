@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Kairos app icon (P4-T08): a circle (time) with one gold tick at the top-right, "the moment".
+       Brand colours from DESIGN_SYSTEM §3.1: midnight #0B0F1A, ivory #FAF8F4, gold #C9A24A. -->
+  <rect width="1024" height="1024" rx="224" fill="#0B0F1A"/>
+  <circle cx="512" cy="512" r="290" fill="none" stroke="#FAF8F4" stroke-width="76"/>
+  <line x1="672" y1="352" x2="790" y2="234" stroke="#0B0F1A" stroke-width="150" stroke-linecap="round"/>
+  <line x1="672" y1="352" x2="790" y2="234" stroke="#C9A24A" stroke-width="80" stroke-linecap="round"/>
+</svg>
